@@ -61,8 +61,29 @@ async function run() {
     //post request to insert order collection
     app.post('/orders', async(req,res)=>{
         const order = req.body
-        const result = await orderCollection.insertOne(order)
-        res.send(result)
+        itemId = order.itemId
+        const orderQuantity = parseInt(order.order_quantity)
+        const query = {_id: new ObjectId(itemId)}
+        const food = await foodCollection.findOne(query)
+        const prevOrderCount = food.order_count
+        const newOrdercount = prevOrderCount + orderQuantity
+        console.log(prevOrderCount,newOrdercount)
+        const filter = {_id: new ObjectId(itemId)}
+        const options = {upsert: true }
+        const updateDoc = {
+            $set: {
+              order_count:newOrdercount
+            }
+          };
+          const result1 = await foodCollection.updateOne(filter, updateDoc, options)
+          if(result1.modifiedCount === 1){
+            console.log("upadated")
+          }else{
+            console.log("not found")
+          }
+        
+         const result = await orderCollection.insertOne(order)
+         res.send({result,result1})
     })
 
    
