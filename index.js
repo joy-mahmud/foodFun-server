@@ -52,6 +52,17 @@ async function run() {
 
     //my orders api
     app.get('/myorders',async(req,res)=>{
+        const query = {email:req.query.email}
+        // if(req.query.email!==req.user.userEmail){
+        //   return res.status(403).send("forbidden")
+        // }
+        // console.log(req.cookies.token)
+        // console.log("request for valid user",req.user)
+        const result = await orderCollection.find(query).toArray()
+       
+        res.send(result)
+    })
+    app.get('/myaddeditems',async(req,res)=>{
         const query = {owner_email:req.query.email}
         // if(req.query.email!==req.user.userEmail){
         //   return res.status(403).send("forbidden")
@@ -61,6 +72,7 @@ async function run() {
         const result = await foodCollection.find(query).toArray()
         res.send(result)
     })
+
     
 
     //get a single food item
@@ -69,6 +81,13 @@ async function run() {
         const query = {_id: new ObjectId(id)}
         const result =  await foodCollection.findOne(query)
         res.send(result)
+    })
+    //add an item api
+    app.post('/additem',async(req,res)=>{
+        const item = req.body
+        const result = await foodCollection.insertOne(item)
+        res.send(result)
+
     })
     //post request to insert order collection
     app.post('/orders', async(req,res)=>{
