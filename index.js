@@ -49,6 +49,18 @@ async function run() {
         const result = await cursor.toArray()
         res.send(result)
     })
+
+    //my orders api
+    app.get('/myorders',async(req,res)=>{
+        const query = {owner_email:req.query.email}
+        // if(req.query.email!==req.user.userEmail){
+        //   return res.status(403).send("forbidden")
+        // }
+        // console.log(req.cookies.token)
+        // console.log("request for valid user",req.user)
+        const result = await foodCollection.find(query).toArray()
+        res.send(result)
+    })
     
 
     //get a single food item
@@ -67,7 +79,7 @@ async function run() {
         const food = await foodCollection.findOne(query)
         const prevOrderCount = food.order_count
         const newOrdercount = prevOrderCount + orderQuantity
-        console.log(prevOrderCount,newOrdercount)
+        
         const filter = {_id: new ObjectId(itemId)}
         const options = {upsert: true }
         const updateDoc = {
@@ -84,6 +96,29 @@ async function run() {
         
          const result = await orderCollection.insertOne(order)
          res.send({result,result1})
+    })
+    //update an item 
+    app.post('/update/:id', async(req,res)=>{
+        const id = req.params.id
+        const itemInfo = req.body
+        const {foodName,price,category,desc,quantity,origin,photo_url} =itemInfo
+        const update_quantity = parseInt(quantity)
+        const filter = {_id: new ObjectId(id)}
+        const options = {upsert: true }
+        const updateDoc = {
+            $set: {
+                item_name:foodName,
+                img:photo_url,
+                food_origin:origin,
+                price:price,
+                quantity:update_quantity,
+                category:category,
+                description:desc
+            }
+          };
+          const result = await foodCollection.updateOne(filter, updateDoc, options)
+          res.send(result)
+
     })
 
    
