@@ -140,6 +140,15 @@ async function run() {
 
     })
 
+    //delete an order api
+    app.delete('/delete/:id', async(req,res)=>{
+        const id = req.params.id
+        const query = {_id: new ObjectId(id)}
+        const result = await orderCollection.deleteOne(query)
+        res.send(result)
+        
+    })
+
    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
