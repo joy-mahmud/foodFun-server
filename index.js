@@ -9,8 +9,8 @@ const port = process.env.PORT || 5000
 
 //middleware
 app.use(cors({
-  origin:['http://localhost:5173'],
-  credentials:true
+//   origin:['http://localhost:5173'],
+//   credentials:true
 }))
 app.use(express.json())
 app.use(cookieParser())
@@ -33,8 +33,9 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const foodCollection = client.db('foodFun').collection('foodCollection')
+    const orderCollection = client.db('foodFun').collection('orderCollection')
    
-    //get request for loading services collection
     app.post('/jwt', async(req,res)=>{
       const user = req.body
       const token = jwt.sign(user,process.env.ACCESSS_TOKEN_SECRET, { expiresIn: '1h' }); 
@@ -42,13 +43,34 @@ async function run() {
       .send({success:true})
     })
 
+    //get request to get all foods
+    app.get('/allfoods', async(req,res)=>{
+        const cursor = foodCollection.find()
+        const result = await cursor.toArray()
+        res.send(result)
+    })
     
+
+    //get a single food item
+    app.get('/details/:id', async(req,res)=>{
+        const id = req.params.id
+        const query = {_id: new ObjectId(id)}
+        const result =  await foodCollection.findOne(query)
+        res.send(result)
+    })
+    //post request to insert order collection
+    app.post('/orders', async(req,res)=>{
+        const order = req.body
+        const result = await orderCollection.insertOne(order)
+        res.send(result)
+    })
+
    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
-    // Ensures that the client will close when you finish/error
+    
     //await client.close();
   }
 }
