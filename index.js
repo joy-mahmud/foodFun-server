@@ -81,13 +81,12 @@ async function run() {
     })
 
     //my orders api
-    app.get('/myorders',async(req,res)=>{
+    app.get('/myorders',verifyToken,async(req,res)=>{
         const query = {email:req.query.email}
-        // if(req.query.email!==req.user.userEmail){
-        //   return res.status(403).send("forbidden")
-        // }
-        // console.log(req.cookies.token)
-        // console.log("request for valid user",req.user)
+        if(req.query.email!==req.user.userEmail){
+          return res.status(403).send("forbidden")
+        }
+      
         const result = await orderCollection.find(query).toArray()
        
         res.send(result)
@@ -148,6 +147,7 @@ async function run() {
     })
     //update an item 
     app.post('/update/:id', async(req,res)=>{
+        
         const id = req.params.id
         const itemInfo = req.body
         const {foodName,price,category,desc,quantity,origin,photo_url} =itemInfo
@@ -171,7 +171,10 @@ async function run() {
     })
 
     //delete an order api
-    app.delete('/delete/:id', async(req,res)=>{
+    app.delete('/delete/:id',verifyToken, async(req,res)=>{
+        if(req.query.email!==req.user.userEmail){
+            return res.status(403).send("forbidden")
+          }
         const id = req.params.id
         const query = {_id: new ObjectId(id)}
         const result = await orderCollection.deleteOne(query)
