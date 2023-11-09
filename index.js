@@ -92,11 +92,11 @@ async function run() {
        
         res.send(result)
     })
-    app.get('/myaddeditems',async(req,res)=>{
+    app.get('/myaddeditems',verifyToken,async(req,res)=>{
         const query = {owner_email:req.query.email}
-        // if(req.query.email!==req.user.userEmail){
-        //   return res.status(403).send("forbidden")
-        // }
+        if(req.query.email!==req.user.userEmail){
+          return res.status(403).send("forbidden")
+        }
         // console.log(req.cookies.token)
         // console.log("request for valid user",req.user)
         const result = await foodCollection.find(query).toArray()
