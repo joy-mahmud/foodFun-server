@@ -9,7 +9,7 @@ const port = process.env.PORT || 5000
 
 //middleware
 app.use(cors({
-  origin:['http://localhost:5173'],
+  origin:['https://foodfun-5c49a.web.app','https://foodfun-5c49a.firebaseapp.com'],
   credentials:true
 }))
 app.use(express.json())
@@ -56,8 +56,9 @@ async function run() {
         const token = jwt.sign(user,process.env.ACCESSS_TOKEN_SECRET, { expiresIn: '1h' }); 
         res
         .cookie('token',token,{
-          httpOnly:true,
-          secure:false,
+          httpOnly:false,
+          secure:true,
+          sameSite:'none'
           
          
         })
