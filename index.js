@@ -9,7 +9,8 @@ const port = process.env.PORT || 5000
 
 //middleware
 app.use(cors({
-  origin:['https://foodfun-5c49a.web.app','https://foodfun-5c49a.firebaseapp.com'],
+  //origin:['https://foodfun-5c49a.web.app','https://foodfun-5c49a.firebaseapp.com'],
+  origin:['http://localhost:5173'],
   credentials:true
 }))
 app.use(express.json())
@@ -47,17 +48,18 @@ const verifyToken = async (req,res,next)=>{
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+   // await client.connect();
     const foodCollection = client.db('foodFun').collection('foodCollection')
     const orderCollection = client.db('foodFun').collection('orderCollection')
+    const TableBookingCollection = client.db('foodFun').collection('tableBooking')
    
     app.post('/jwt', async(req,res)=>{
         const user = req.body
         const token = jwt.sign(user,process.env.ACCESSS_TOKEN_SECRET, { expiresIn: '1h' }); 
         res
         .cookie('token',token,{
-          httpOnly:false,
-          secure:true,
+          httpOnly:true,
+          secure:false,
           sameSite:'none'
           
          
@@ -188,10 +190,23 @@ async function run() {
         const count = await foodCollection.estimatedDocumentCount()
         res.send({count})
     })
+    //table booking related api
+    app.post('/bookTable', async(req,res)=>{
+      const bookingData = req.body
+      const result = await TableBookingCollection.insertOne(bookingData)
+      res.send(result)
+
+    })
+    app.get('/bookTable',async(req,res)=>{
+      const email = req.query.email
+      const query = {email:email}
+      const result = await TableBookingCollection.find(query).toArray()
+      res.send(result)
+    })
 
    
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    //await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     
