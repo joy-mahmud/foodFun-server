@@ -9,8 +9,8 @@ const port = process.env.PORT || 5000
 
 //middleware
 app.use(cors({
-  origin:['https://foodfun-5c49a.web.app','https://foodfun-5c49a.firebaseapp.com'],
-  //origin:['http://localhost:5173'],
+  //origin:['https://foodfun-5c49a.web.app','https://foodfun-5c49a.firebaseapp.com'],
+  origin:['http://localhost:5173'],
   credentials:true
 }))
 app.use(express.json())
@@ -58,9 +58,9 @@ async function run() {
         const token = jwt.sign(user,process.env.ACCESSS_TOKEN_SECRET, { expiresIn: '1h' }); 
         res
         .cookie('token',token,{
-          httpOnly:false,
-          secure:true,
-          sameSite:'none'
+          httpOnly:true,
+          secure:false,
+          // sameSite:'none'
           
          
         })
@@ -147,6 +147,12 @@ async function run() {
         
          const result = await orderCollection.insertOne(order)
          res.send({result,result1})
+    })
+    app.get('/myCart/:email',async(req,res)=>{
+      const email = req.params.email
+      const query = {email:email}
+      const result = await orderCollection.find(query).toArray()
+      res.send(result)
     })
     //update an item 
     app.post('/update/:id', async(req,res)=>{
