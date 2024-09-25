@@ -31,6 +31,7 @@ const client = new MongoClient(uri, {
 
 const verifyToken = async (req,res,next)=>{
     const token = req.cookies?.token
+    console.log(token)
     if(!token){
       return res.send({message:'not authorized'})
     }
@@ -58,9 +59,11 @@ async function run() {
         const token = jwt.sign(user,process.env.ACCESSS_TOKEN_SECRET, { expiresIn: '1h' }); 
         res
         .cookie('token',token,{
+          //httpOnly:false,
           httpOnly:true,
+          //secure:true,
           secure:false,
-          // sameSite:'none'
+          //sameSite:'none'
           
          
         })
