@@ -97,11 +97,11 @@ async function run() {
        
         res.send(result)
     })
-    app.get('/myaddeditems',verifyToken,async(req,res)=>{
+    app.get('/myaddeditems',async(req,res)=>{
         const query = {owner_email:req.query.email}
-        if(req.query.email!==req.user.userEmail){
-          return res.status(403).send("forbidden")
-        }
+        // if(req.query.email!==req.user.userEmail){
+        //   return res.status(403).send("forbidden")
+        // }
         // console.log(req.cookies.token)
         // console.log("request for valid user",req.user)
         const result = await foodCollection.find(query).toArray()
@@ -183,7 +183,7 @@ async function run() {
     })
 
     //delete an order api
-    app.delete('/delete/:id',verifyToken, async(req,res)=>{
+    app.delete('/deleteFromCart/:id',verifyToken, async(req,res)=>{
         if(req.query.email!==req.user.userEmail){
             return res.status(403).send("forbidden")
           }
@@ -192,6 +192,14 @@ async function run() {
         const result = await orderCollection.deleteOne(query)
         res.send(result)
         
+    })
+    //delete an added Item of any user who added a food item
+    app.delete('/deleteAddedItem/:id',async(req,res)=>{
+      const id = req.params.id
+      const email = req.query.email
+      const query ={_id: new ObjectId(id)}
+      const result = await foodCollection.deleteOne(query)
+      res.send(result)
     })
 
     //pagination api
