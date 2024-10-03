@@ -101,6 +101,23 @@ async function run() {
       const result = await userCollection.insertOne(user)
       res.send(result)
     })
+    //fetch all users
+    app.get('/allUsers/:email',async(req,res)=>{
+      const email = req.params.email
+      const query = { email: email }
+      const user = await userCollection.findOne(query)
+      let admin = false
+      if (user) {
+        admin = user?.role === 'admin'
+      }
+      if(admin){
+        const allUsers = await userCollection.find().toArray()
+        const allUsersRev= allUsers.reverse()
+        res.status(200).send(allUsersRev)
+      }else{
+        res.status(400).send({message:'unathorized access'})
+      }
+    })
 
     //get admin 
     app.get('/users/admin/:email', async (req, res) => {
@@ -113,6 +130,28 @@ async function run() {
       }
       console.log(email, admin)
       res.send({ admin })
+    })
+    //update user role
+    app.patch('/updateRole/:email',async(req,res)=>{
+      const email = req.params.email
+      const query1 = { email: email }
+      const user = await userCollection.findOne(query1)
+      let admin = false
+      if (user) {
+        admin = user?.role === 'admin'
+      }
+      if(admin){
+        const reqEmail=req.body.email
+        const query= {email:reqEmail}
+        const role= req.body.role
+        const updateData={role:role}
+        const result = await userCollection.updateOne(query,{
+          $set:updateData
+        })
+        res.send(result)
+      }else{
+        res.status(400).send('unathorized access')
+      }
     })
 
     //get request to get all foods
